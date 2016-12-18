@@ -9,52 +9,52 @@ type Lexer struct {
 	position     int
 	readPosition int
 	ch           byte
-	accumulator  token.Token
+	current  token.Token
 }
 
 func New(input string) *Lexer {
-	l := &Lexer{input: input, position: 0, readPosition: 0, ch: 0, accumulator: token.Empty()}
+	l := &Lexer{input: input, position: 0, readPosition: 0, ch: 0, current: token.Empty()}
   l.readChar()
   l.next()
 	return l
 }
 
 func (l *Lexer) NextToken() token.Token {
-  tok := l.current()
+  tok := l.Current()
   l.next()
   return tok
 }
 
-func (l *Lexer) current() token.Token {
-	return l.accumulator
+func (l *Lexer) Current() token.Token {
+	return l.current
 }
 
 func (l *Lexer) next() bool {
-	l.accumulator = token.Empty()
+	l.current = token.Empty()
 
   l.skipWhitespace()
   if !(l.readWord() || l.readNumber() || l.readOperator()) {
     switch l.ch {
     case ';':
-      l.accumulator = token.SEMICOLON
+      l.current = token.SEMICOLON
     case '(':
-      l.accumulator = token.LPAREN
+      l.current = token.LPAREN
     case ')':
-      l.accumulator = token.RPAREN
+      l.current = token.RPAREN
     case ',':
-      l.accumulator = token.COMMA
+      l.current = token.COMMA
     case '{':
-      l.accumulator = token.LBRACE
+      l.current = token.LBRACE
     case '}':
-      l.accumulator = token.RBRACE
+      l.current = token.RBRACE
     case '[':
-      l.accumulator = token.LBRACK
+      l.current = token.LBRACK
     case ']':
-      l.accumulator = token.RBRACK
+      l.current = token.RBRACK
     case 0:
       return false
     default:
-      l.accumulator = token.Token{token.ILLEGAL, string(l.ch)}
+      l.current = token.Token{token.ILLEGAL, string(l.ch)}
       return false
     }
     l.readChar()
@@ -72,9 +72,17 @@ func (l *Lexer) readNumber() bool {
     if l.ch == 'f' {
       stop += 1
       l.readChar()
+    } else if l.ch == '.' {
+      if isDigit(l.peekChar()) {
+        l.readChar()
+        for isDigit(l.ch) {
+          l.readChar()
+        }
+        stop = l.position
+      }
     }
     literal := l.input[start:stop]
-    l.accumulator = token.IntOrFloat(literal)
+    l.current = token.IntOrFloat(literal)
     return true
   }
   return false
@@ -88,7 +96,7 @@ func (l *Lexer) readWord() bool {
     }
     stop := l.position
     literal := l.input[start:stop]
-    l.accumulator = token.CheckKeyword(literal)
+    l.current = token.CheckKeyword(literal)
     return true
   }
   return false
@@ -112,7 +120,7 @@ func (l *Lexer) readOperator() bool {
     }
     stop := l.position
     literal := l.input[start:stop]
-    l.accumulator = token.Token{token.OPERATOR, literal}
+    l.current = token.Token{token.OPERATOR, literal}
     return true
   }
   return false
@@ -134,6 +142,14 @@ func (l *Lexer) readChar() {
 	}
 	l.position = l.readPosition
 	l.readPosition += 1
+}
+
+func (l *Lexer) peekChar() byte {
+  if l.readPosition >= len(l.input) {
+    return 0
+  } else {
+    return l.input[l.readPosition]
+  }
 }
 
 func (l *Lexer) skipWhitespace() {
