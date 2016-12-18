@@ -10,10 +10,10 @@ type Token struct {
 }
 
 func Empty() Token {
-  return Token{Type: EOF, Literal:"" }
+  return EOF
 }
 
-var keywords = map[string]TokenType{
+var keywords = map[string]Token{
   "fn": FUNCTION,
   "let": LET,
   "if": IF,
@@ -23,23 +23,23 @@ var keywords = map[string]TokenType{
   "return": RETURN,
 }
 
-func CheckKeyword(ident string) TokenType {
+func CheckKeyword(ident string) Token {
   if tok, ok := keywords[ident]; ok {
     return tok
   }
-  return IDENT
+  return Token{IDENT, ident}
 }
 
-func IntOrFloat(number string) TokenType {
+func IntOrFloat(number string) Token {
   if strings.HasSuffix(number, "f") || strings.Contains(number, ".") {
-    return FLOAT
+    return Token{FLOAT, number}
   }
-  return INT
+  return Token{INT, number}
 }
 
 const (
+  EOF_T = "EOF"
 	ILLEGAL = "ILLEGAL"
-	EOF     = "EOF"
 
 	// Identifiers + literals
 	IDENT = "IDENT" // add, foobar, x, y, ...
@@ -51,22 +51,42 @@ const (
 	EQ = "="
 	PLUS   = "+"
 
-	// Delimiters
-	COMMA     = ","
-	SEMICOLON = ";"
-	LPAREN    = "("
-	RPAREN    = ")"
-	LBRACE    = "{"
-	RBRACE    = "}"
-  LBRACK    = "["
-  RBRACK    = "]"
+  // Delimiters
+  COMMA_T     = ","
+  SEMICOLON_T = ";"
+  LPAREN_T    = "("
+  RPAREN_T    = ")"
+  LBRACE_T    = "{"
+  RBRACE_T    = "}"
+  LBRACK_T    = "["
+  RBRACK_T    = "]"
 
-	// Keywords
-	FUNCTION = "FUNCTION"
-	LET      = "LET"
-  IF       = "IF"
-  ELSE     = "ELSE"
-  TRUE     = "TRUE"
-  FALSE    = "FALSE"
-  RETURN   = "RETURN"
+  // Keywords
+  FUNCTION_T = "FUNCTION"
+  LET_T      = "LET"
+  IF_T       = "IF"
+  ELSE_T     = "ELSE"
+  TRUE_T     = "TRUE"
+  FALSE_T    = "FALSE"
+  RETURN_T   = "RETURN"
 )
+
+// Delimiters
+var COMMA     = Token{",", ","}
+var	SEMICOLON = Token{";", ";"}
+var	LPAREN    = Token{"(", "("}
+var	RPAREN    = Token{")", ")"}
+var	LBRACE    = Token{"{", "{"}
+var	RBRACE    = Token{"}", "}"}
+var LBRACK    = Token{"[", "["}
+var RBRACK    = Token{"]", "]"}
+var	EOF       = Token{"EOF", ""}
+
+// Keywords
+var FUNCTION = Token{"FUNCTION", "fn"}
+var LET      = Token{"LET", "let"}
+var IF       = Token{"IF", "if"}
+var ELSE     = Token{"ELSE", "else"}
+var TRUE     = Token{"TRUE", "true"}
+var FALSE    = Token{"FALSE", "false"}
+var RETURN   = Token{"RETURN", "return"}

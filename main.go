@@ -2,7 +2,7 @@ package main
 
 import (
   "fmt"
-  //"monkey/repl"
+	"github.com/jcc333/monkey/repl"
   "os"
   "os/user"
 )
