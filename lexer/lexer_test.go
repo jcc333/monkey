@@ -6,7 +6,7 @@ import (
   "fmt"
 )
 
-func TestNextToken(t *testing.T) {
+func TestLexer(t *testing.T) {
 	input := `let five = 5;
   let ten = 10f;
   let add = fn(x, y) {
